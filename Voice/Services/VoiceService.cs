@@ -143,7 +143,7 @@ namespace GTA5Voice.Voice.Services
         /**
          * Removes a specific player from the data for all other voice clients
          */
-        public void RemoveLocalClientData(int remoteId)
+        private void RemoveLocalClientData(int remoteId)
         {
             var vClients = GetOtherVoiceClientPlayers(remoteId);
             NAPI.ClientEvent.TriggerClientEventToPlayers(vClients, "Client:GTA5Voice:RemoveClient", remoteId);

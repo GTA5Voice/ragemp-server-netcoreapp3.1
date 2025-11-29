@@ -32,7 +32,9 @@ namespace GTA5Voice
                 var vsClient = VoiceService.AddClient(player);
                 vsClient?.Initialize(_settingsService);
                 VoiceService.LoadLocalClientData(player.Id);
-                vsClient?.Start();
+                
+                // Recommended to trigger after login
+                player.MoveToVoiceChannel();
             });
         }
 

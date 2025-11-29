@@ -29,5 +29,8 @@ namespace GTA5Voice.Extensions
 
         public static void SetForceMuted(this Player player, bool forceMuted)
             => Main.VoiceService.SetForceMuted(player, forceMuted);
+        
+        public static void MoveToVoiceChannel(this Player player)
+            => player.ToVoiceClient()?.Start();
     }
 }
