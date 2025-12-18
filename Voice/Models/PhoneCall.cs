@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using GTA5Voice.Extensions;
 using GTANetworkAPI;
 
 namespace GTA5Voice.Voice.Models
@@ -40,6 +41,7 @@ namespace GTA5Voice.Voice.Models
             CallMembers.Remove(player);
             player.TriggerEvent("Client:GTA5Voice:KillPhoneCall");
             player.ResetData("CurrentCall");
+            player.SetPhoneSpeakerEnabled(false);
             UpdateCall();
         }
 
@@ -63,7 +65,10 @@ namespace GTA5Voice.Voice.Models
             );
 
             foreach (var member in CallMembers)
+            {
                 member.ResetData("CurrentCall");
+                member.SetPhoneSpeakerEnabled(false);
+            }
         }
 
         public Player[] GetCallMembers()
