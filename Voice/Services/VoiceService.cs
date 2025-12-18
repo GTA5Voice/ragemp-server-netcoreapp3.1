@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text.Json;
+using GTA5Voice.Extensions;
 using GTA5Voice.Logging;
 using GTA5Voice.Voice.Models;
 using GTANetworkAPI;
@@ -155,6 +156,10 @@ namespace GTA5Voice.Voice.Services
                 ConsoleLogger.Debug($"Couldn't find voice client (id: {player.Id})");
                 return;
             }
+            
+            // Prevent to enable phone speaker while not on phone call
+            if (player.GetCurrentCall() == null)
+                phoneSpeakerEnabled = false;
 
             var pluginData = client.GetPluginData();
             if (pluginData == null || pluginData.PhoneSpeakerEnabled == phoneSpeakerEnabled)
