@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text.Json;
+using GTA5Voice.Extensions;
 using GTA5Voice.Logging;
 using GTA5Voice.Voice.Models;
 using GTANetworkAPI;
@@ -54,13 +55,16 @@ namespace GTA5Voice.Voice.Services
 
         private class VoiceClientData
         {
-            public VoiceClientData(ushort remoteId, int? teamspeakId, bool websocketConnection, float currentVoiceRange, bool forceMuted)
+            public VoiceClientData(ushort remoteId, int? teamspeakId, bool websocketConnection, float currentVoiceRange, 
+                bool forceMuted, bool phoneSpeakerEnabled, int[] currentCallMembers)
             {
                 RemoteId = remoteId;
                 TeamspeakId = teamspeakId;
                 WebsocketConnection = websocketConnection;
                 CurrentVoiceRange = currentVoiceRange;
                 ForceMuted = forceMuted;
+                PhoneSpeakerEnabled = phoneSpeakerEnabled;
+                CurrentCallMembers = currentCallMembers;
             }
 
             public ushort RemoteId { get; }
@@ -68,6 +72,8 @@ namespace GTA5Voice.Voice.Services
             public bool WebsocketConnection { get; }
             public float CurrentVoiceRange { get; }
             public bool ForceMuted { get; }
+            public bool PhoneSpeakerEnabled { get; }
+            public int[] CurrentCallMembers { get; set; }
         }
 
         public void LoadLocalClientData(int remoteId)
@@ -92,7 +98,9 @@ namespace GTA5Voice.Voice.Services
                         pluginData?.TeamspeakId,
                         pluginData?.WebsocketConnection ?? false,
                         pluginData?.CurrentVoiceRange ?? 0,
-                        pluginData?.ForceMuted ?? false
+                        pluginData?.ForceMuted ?? false,
+                        pluginData?.PhoneSpeakerEnabled ?? false,
+                        pluginData?.CurrentCallMembers ?? Array.Empty<int>()
                     );
                 }).ToArray();
 
@@ -131,14 +139,58 @@ namespace GTA5Voice.Voice.Services
                 return;
             }
 
-            var pluginData = client.GetPluginData() ?? new PluginData(null, false, 0, forceMuted);
-            if (pluginData.ForceMuted == forceMuted)
+            var pluginData = client.GetPluginData();
+            if (pluginData == null || pluginData.ForceMuted == forceMuted)
                 return;
 
             var updatedPluginData = new PluginData(pluginData.TeamspeakId, pluginData.WebsocketConnection,
-                pluginData.CurrentVoiceRange, forceMuted);
+                pluginData.CurrentVoiceRange, forceMuted, pluginData.PhoneSpeakerEnabled, pluginData.CurrentCallMembers);
             client.SetPluginData(updatedPluginData, UpdateLocalClientData);
         }
+        
+        public void SetPhoneSpeakerEnabled(Player player, bool phoneSpeakerEnabled)
+        {
+            var client = FindClient(player);
+            if (client == null)
+            {
+                ConsoleLogger.Debug($"Couldn't find voice client (id: {player.Id})");
+                return;
+            }
+            
+            // Prevent to enable phone speaker while not on phone call
+            if (player.GetCurrentCall() == null)
+                phoneSpeakerEnabled = false;
+
+            var pluginData = client.GetPluginData();
+            if (pluginData == null || pluginData.PhoneSpeakerEnabled == phoneSpeakerEnabled)
+                return;
+
+            var updatedPluginData = new PluginData(pluginData.TeamspeakId, pluginData.WebsocketConnection,
+                pluginData.CurrentVoiceRange, pluginData.ForceMuted, phoneSpeakerEnabled, pluginData.CurrentCallMembers);
+            client.SetPluginData(updatedPluginData, UpdateLocalClientData);
+        }
+        
+        public void SetCurrentCallMembers(Player player, int[] callMembers)
+        {
+            var client = FindClient(player);
+            if (client == null)
+            {
+                ConsoleLogger.Debug($"Couldn't find voice client (id: {player.Id})");
+                return;
+            }
+
+
+            var pluginData = client.GetPluginData();
+            if (pluginData == null || pluginData.CurrentCallMembers == callMembers)
+                return;
+
+            var updatedPluginData = new PluginData(pluginData.TeamspeakId, pluginData.WebsocketConnection,
+                pluginData.CurrentVoiceRange, pluginData.ForceMuted, pluginData.PhoneSpeakerEnabled, callMembers);
+            client.SetPluginData(updatedPluginData, UpdateLocalClientData);
+        }
+        
+        public void ClearCurrentCallMembers(Player player)
+            => SetCurrentCallMembers(player, Array.Empty<int>());
 
         /**
          * Removes a specific player from the data for all other voice clients
