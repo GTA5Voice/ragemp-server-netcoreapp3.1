@@ -11,5 +11,9 @@
         internal static readonly Setting<int> CalculationInterval = new Setting<int>("CalculationInterval", defaultValue: 250);
         internal static readonly Setting<string> VoiceRanges = new Setting<string>("VoiceRanges", defaultValue: "[1, 3, 8, 15]");
         internal static readonly Setting<string> ExcludedChannels = new Setting<string>("ExcludedChannels");
+        internal static readonly Setting<bool> EnableDistanceBasedVolume = new Setting<bool>("EnableDistanceBasedVolume", defaultValue: false);
+        internal static readonly Setting<double> VolumeDecreaseMultiplier = new Setting<double>("VolumeDecreaseMultiplier");
+        internal static readonly Setting<double> MinimumVoiceVolume = new Setting<double>("MinimumVoiceVolume", defaultValue: 0.25);
+
     }
 }

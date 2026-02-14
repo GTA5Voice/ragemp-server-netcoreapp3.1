@@ -15,6 +15,9 @@ namespace GTA5Voice.Voice.Models
             CalculationInterval = settingsService.Get<int>(Settings.CalculationInterval.Key);
             VoiceRanges = settingsService.Get<string>(Settings.VoiceRanges.Key);
             ExcludedChannels = settingsService.Get<string>(Settings.ExcludedChannels.Key);
+            EnableDistanceBasedVolume = settingsService.Get<bool>(Settings.EnableDistanceBasedVolume.Key);
+            VolumeDecreaseMultiplier = settingsService.Get<double>(Settings.VolumeDecreaseMultiplier.Key);
+            MinimumVoiceVolume = settingsService.Get<double>(Settings.MinimumVoiceVolume.Key);
         }
 
         public string VirtualServerUid { get; set; }
@@ -25,5 +28,9 @@ namespace GTA5Voice.Voice.Models
         public int CalculationInterval { get; set; }
         public string VoiceRanges { get; set; }
         public string ExcludedChannels { get; set; }
+        public bool EnableDistanceBasedVolume { get; set; }
+        public double VolumeDecreaseMultiplier { get; set; }
+        public double MinimumVoiceVolume { get; set; }
+
     }
 }
